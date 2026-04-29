@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_connections, update_connection, login_view
+from .views import get_connections, update_connection, login_view, create_superuser
 
 urlpatterns = [
     path('login/', login_view),
