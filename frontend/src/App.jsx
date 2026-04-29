@@ -26,8 +26,7 @@ ChartJS.register(
   BarElement,
 );
 
-const API = "http://127.0.0.1:8000/api";
-
+const API = "https://electricity-board-api.onrender.com";
 function App() {
   const [data, setData] = useState([]);
   const [pageView, setPageView] = useState("home");
