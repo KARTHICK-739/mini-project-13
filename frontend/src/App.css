@@ -300,3 +300,18 @@ background: #ffffff;      /* clean white */
   text-align: center;
   margin: 0;
 }
+.login-info {
+  background: #f1f5f9;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 13px;
+  color: #334155;
+}
+
+.login-info p {
+  margin: 4px 0;
+}
+
+.login-info a {
+  color: #3b82f6;
+}

@@ -183,6 +183,26 @@ function App() {
           />
           {loginError && <p className="login-error">{loginError}</p>}
           <button onClick={handleLogin}>Login</button>
+          // Add this inside your login-box div, below the{" "}
+          <p>Sign in to continue</p>
+          <div className="login-info">
+            <p>
+              🔧 First time?{" "}
+              <a
+                href="https://electricity-board-api.onrender.com/api/create-superuser/"
+                target="_blank"
+              >
+                Click here
+              </a>{" "}
+              to setup admin
+            </p>
+            <p>
+              👤 Username: <strong>admin</strong>
+            </p>
+            <p>
+              🔑 Password: <strong>admin123</strong>
+            </p>
+          </div>
         </div>
       </div>
     );
