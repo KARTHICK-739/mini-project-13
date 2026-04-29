@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import "./App.css";
 
-import { Pie, Line, Bar } from "react-chartjs-2";
+import { Pie, Line } from "react-chartjs-2";
 
 import {
   Chart as ChartJS,
@@ -19,14 +19,15 @@ ChartJS.register(
   ArcElement,
   Tooltip,
   Legend,
-  CategoryScale, // ✅ VERY IMPORTANT
-  LinearScale, // ✅ VERY IMPORTANT
+  CategoryScale,
+  LinearScale,
   PointElement,
   LineElement,
   BarElement,
 );
 
-const API = "https://electricity-board-api.onrender.com";
+const API = "https://electricity-board-api.onrender.com/api";
+
 function App() {
   const [data, setData] = useState([]);
   const [pageView, setPageView] = useState("home");
@@ -36,6 +37,9 @@ function App() {
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(1);
   const rowsPerPage = 10;
+  const [token, setToken] = useState(localStorage.getItem("token") || null);
+  const [loginData, setLoginData] = useState({ username: "", password: "" });
+  const [loginError, setLoginError] = useState("");
 
   // 🔄 Fetch data
   const fetchData = async () => {
@@ -45,8 +49,37 @@ function App() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (token) {
+      fetchData();
+    }
+  }, [token]);
+
+  // 🔐 Login
+  const handleLogin = async () => {
+    try {
+      const res = await fetch(`${API}/login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(loginData),
+      });
+      const d = await res.json();
+      if (d.token) {
+        localStorage.setItem("token", d.token);
+        setToken(d.token);
+        setLoginError("");
+      } else {
+        setLoginError("Invalid username or password");
+      }
+    } catch (err) {
+      setLoginError("Something went wrong");
+    }
+  };
+
+  // 🚪 Logout
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+  };
 
   // 📊 Stats
   const approved = data.filter((d) => d.status === "approved").length;
@@ -62,12 +95,11 @@ function App() {
       },
     ],
   };
-  const monthlyCounts = {};
 
+  const monthlyCounts = {};
   data.forEach((item) => {
     const date = new Date(item.date_of_application);
     const month = date.toLocaleString("default", { month: "short" });
-
     monthlyCounts[month] = (monthlyCounts[month] || 0) + 1;
   });
 
@@ -88,36 +120,27 @@ function App() {
   };
 
   // 📄 Pagination
-
   const filteredData = data.filter((item) => {
-    // Search by ID
-    if (searchId && item.id.toString() !== searchId) {
+    if (searchId && item.id.toString() !== searchId) return false;
+    if (fromDate && new Date(item.date_of_application) < new Date(fromDate))
       return false;
-    }
-
-    // Date filter
-    if (fromDate && new Date(item.date_of_application) < new Date(fromDate)) {
+    if (toDate && new Date(item.date_of_application) > new Date(toDate))
       return false;
-    }
-
-    if (toDate && new Date(item.date_of_application) > new Date(toDate)) {
-      return false;
-    }
-
     return true;
   });
 
   const indexOfLast = page * rowsPerPage;
   const indexOfFirst = indexOfLast - rowsPerPage;
-
   const currentRows = filteredData.slice(indexOfFirst, indexOfLast);
   const totalPages = Math.ceil(filteredData.length / rowsPerPage);
-const handleChange = (e) => {
-  setEditing((prev) => ({
-    ...prev,
-    [e.target.name]: e.target.value,
-  }));
-};
+
+  const handleChange = (e) => {
+    setEditing((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
   // ✏️ Update
   const handleUpdate = async () => {
     try {
@@ -128,15 +151,42 @@ const handleChange = (e) => {
         },
         body: JSON.stringify(editing),
       });
-
-      // 🔄 Refresh data from backend
       fetchData();
-
       setEditing(null);
     } catch (err) {
       console.error(err);
     }
   };
+
+  // 🔐 LOGIN PAGE
+  if (!token) {
+    return (
+      <div className="login-container">
+        <div className="login-box">
+          <h2>⚡ Electricity Board</h2>
+          <p>Sign in to continue</p>
+          <input
+            type="text"
+            placeholder="Username"
+            value={loginData.username}
+            onChange={(e) =>
+              setLoginData({ ...loginData, username: e.target.value })
+            }
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={loginData.password}
+            onChange={(e) =>
+              setLoginData({ ...loginData, password: e.target.value })
+            }
+          />
+          {loginError && <p className="login-error">{loginError}</p>}
+          <button onClick={handleLogin}>Login</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container">
@@ -146,6 +196,9 @@ const handleChange = (e) => {
         <div>
           <button onClick={() => setPageView("home")}>Home</button>
           <button onClick={() => setPageView("stats")}>Statistics</button>
+          <button onClick={handleLogout} style={{ background: "#ef4444" }}>
+            Logout
+          </button>
         </div>
       </div>
 
@@ -153,7 +206,6 @@ const handleChange = (e) => {
       {pageView === "home" && (
         <>
           <div className="filters">
-            {/* 🔍 Search by ID */}
             <input
               type="number"
               placeholder="Search by ID..."
@@ -163,8 +215,6 @@ const handleChange = (e) => {
                 setPage(1);
               }}
             />
-
-            {/* 📅 From Date */}
             <input
               type="date"
               value={fromDate}
@@ -173,8 +223,6 @@ const handleChange = (e) => {
                 setPage(1);
               }}
             />
-
-            {/* 📅 To Date */}
             <input
               type="date"
               value={toDate}
@@ -183,8 +231,6 @@ const handleChange = (e) => {
                 setPage(1);
               }}
             />
-
-            {/* 🔄 Reset */}
             <button
               onClick={() => {
                 setSearchId("");
@@ -218,7 +264,6 @@ const handleChange = (e) => {
                   <th>Edit</th>
                 </tr>
               </thead>
-
               <tbody>
                 {currentRows.map((row) => (
                   <tr key={row.id}>
@@ -252,11 +297,9 @@ const handleChange = (e) => {
             <button disabled={page === 1} onClick={() => setPage(page - 1)}>
               Prev
             </button>
-
             <span>
               Page {page} / {totalPages}
             </span>
-
             <button
               disabled={page === totalPages}
               onClick={() => setPage(page + 1)}
@@ -271,18 +314,15 @@ const handleChange = (e) => {
       {pageView === "stats" && (
         <div className="stats-page">
           <h1>Dashboard</h1>
-
           <div className="cards">
             <div className="card">Total: {data.length}</div>
             <div className="card green">Approved: {approved}</div>
             <div className="card orange">Pending: {pending}</div>
             <div className="card red">Rejected: {rejected}</div>
           </div>
-
           <div className="chart small">
             <Pie data={chartData} />
           </div>
-
           <div className="chart large">
             {lineData && <Line data={lineData} />}
           </div>
@@ -294,40 +334,30 @@ const handleChange = (e) => {
         <div className="modal">
           <div className="modal-content large">
             <h2>Edit #{editing.id}</h2>
-
             <div className="form-grid">
               {/* LEFT */}
               <div>
                 <label>Name</label>
                 <input value={editing.name} disabled />
-
                 <label>Gender</label>
                 <input value={editing.gender} disabled />
-
                 <label>District</label>
                 <input value={editing.district} disabled />
-
                 <label>State</label>
                 <input value={editing.state} disabled />
-
                 <label>Pincode</label>
                 <input value={editing.pincode} disabled />
-
                 <label>Ownership</label>
                 <input value={editing.ownership} disabled />
               </div>
-
               {/* RIGHT */}
               <div>
                 <label>Category</label>
                 <input value={editing.category} disabled />
-
                 <label>Load Applied</label>
                 <input value={editing.load_applied} disabled />
-
                 <label>Date of Application</label>
                 <input value={editing.date_of_application} disabled />
-
                 <label>Status</label>
                 <select
                   name="status"
@@ -338,14 +368,12 @@ const handleChange = (e) => {
                   <option value="approved">Approved</option>
                   <option value="rejected">Rejected</option>
                 </select>
-
                 <label>Reviewer Name</label>
                 <input
                   name="reviewer_name"
                   value={editing.reviewer_name || ""}
                   onChange={handleChange}
                 />
-
                 <label>Comments</label>
                 <textarea
                   name="reviewer_comments"
@@ -354,7 +382,6 @@ const handleChange = (e) => {
                 />
               </div>
             </div>
-
             <div className="modal-actions">
               <button className="save" onClick={handleUpdate}>
                 Save
