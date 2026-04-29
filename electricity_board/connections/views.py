@@ -29,6 +29,14 @@ def get_connections(request):
     serializer = ConnectionSerializer(connections, many=True)
     return Response(serializer.data)
 
+# ⚠️ TEMPORARY - remove after use
+@api_view(['GET'])
+def create_superuser(request):
+    from django.contrib.auth.models import User
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', '', 'admin123')
+        return Response({'message': 'Superuser created!'})
+    return Response({'message': 'Already exists!'})
 
 # UPDATE connection
 @api_view(['PUT'])
