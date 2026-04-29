@@ -159,55 +159,52 @@ function App() {
   };
 
   // 🔐 LOGIN PAGE
-  if (!token) {
-    return (
-      <div className="login-container">
-        <div className="login-box">
-          <h2>⚡ Electricity Board</h2>
-          <p>Sign in to continue</p>
-          <input
-            type="text"
-            placeholder="Username"
-            value={loginData.username}
-            onChange={(e) =>
-              setLoginData({ ...loginData, username: e.target.value })
-            }
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={loginData.password}
-            onChange={(e) =>
-              setLoginData({ ...loginData, password: e.target.value })
-            }
-          />
-          {loginError && <p className="login-error">{loginError}</p>}
-          <button onClick={handleLogin}>Login</button>
-          // Add this inside your login-box div, below the{" "}
-          <p>Sign in to continue</p>
-          <div className="login-info">
-            <p>
-              🔧 First time?{" "}
-              <a
-                href="https://electricity-board-api.onrender.com/api/create-superuser/"
-                target="_blank"
-              >
-                Click here
-              </a>{" "}
-              to setup admin
-            </p>
-            <p>
-              👤 Username: <strong>admin</strong>
-            </p>
-            <p>
-              🔑 Password: <strong>admin123</strong>
-            </p>
-          </div>
+if (!token) {
+  return (
+    <div className="login-container">
+      <div className="login-box">
+        <h2>⚡ Electricity Board</h2>
+        <p>Sign in to continue</p>
+        <input
+          type="text"
+          placeholder="Username"
+          value={loginData.username}
+          onChange={(e) =>
+            setLoginData({ ...loginData, username: e.target.value })
+          }
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={loginData.password}
+          onChange={(e) =>
+            setLoginData({ ...loginData, password: e.target.value })
+          }
+        />
+        {loginError && <p className="login-error">{loginError}</p>}
+        <button onClick={handleLogin}>Login</button>
+        <div className="login-info">
+          <p>
+            🔧 First time?{" "}
+            <a
+              href="https://electricity-board-api.onrender.com/api/create-superuser/"
+              target="_blank"
+            >
+              Click here
+            </a>{" "}
+            to setup admin
+          </p>
+          <p>
+            👤 Username: <strong>admin</strong>
+          </p>
+          <p>
+            🔑 Password: <strong>admin123</strong>
+          </p>
         </div>
       </div>
-    );
-  }
-
+    </div>
+  );
+}
   return (
     <div className="container">
       {/* 🔝 NAVBAR */}

@@ -104,7 +104,7 @@ td button {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,8 +120,8 @@ td button {
 .modal input,
 .modal select,
 .modal textarea {
-    color: #111;  
-background: #ffffff;      /* clean white */
+  color: #111;
+  background: #ffffff; /* clean white */
   font-weight: 500;
   width: 100%;
   margin-bottom: 10px;
@@ -156,7 +156,7 @@ background: #ffffff;      /* clean white */
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -222,7 +222,7 @@ background: #ffffff;      /* clean white */
   border-radius: 5px;
 }
 .modal-content h2 {
-  color: #1e293b;   /* dark professional blue-gray */
+  color: #1e293b; /* dark professional blue-gray */
   font-weight: 600;
   margin-bottom: 10px;
 }
